@@ -233,7 +233,7 @@ mosquitto_pub -h localhost -p 1883 -u yourusername -P yourpassword -t "module_ma
 - `guid` - уникальный идентификатор модуля (TEXT, PRIMARY KEY)
 - `name` - название модуля (TEXT)
 - `description` - описание модуля (TEXT)
-- `status` - статус модуля (TEXT): 'active', 'inactive', 'failed', 'other'
+- `status` - статус модуля (TEXT): 'active', 'inactive', 'failed'
 - `service_type` - тип сервиса (TEXT)
 
 Управление базой данных происходит с помощью методов доступных на http://localhost:8080/docs
