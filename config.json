@@ -1,0 +1,30 @@
+{
+    "servername": "demo.systemapi",
+    "storage": "systemapi",
+    "loglevel": "debug",
+    "service": {
+        "config_path": "/home/gromov/cursach3",
+        "config_global_file": "/home/gromov/cursach3/config.json"
+    },
+    "alerts": {
+       "send_alert_after_service_failed": true,
+       "email": "",
+       "smtp_server": "smtp.gmail.com",
+       "smtp_port": 587,
+       "smtp_username": "",
+       "smtp_password": ""
+    }, 
+    "mqtt":{
+        "broker": "localhost",
+        "port": 1883,
+        "username": "", 
+        "password": "",
+        "topic_prefix": "module_manager"
+    },   
+    "systemapi": {
+        "base_url": "http://localhost:8080"
+    },
+    "database": {
+        "path": "/home/gromov/cursach3/modules.db"
+    }
+}

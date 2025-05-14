@@ -1,0 +1,20 @@
+[Unit]
+Description=System API Service
+After=network.target
+
+[Service]
+Type=simple
+User=gromov
+WorkingDirectory=/home/gromov/cursach3/
+ExecStart=/home/gromov/cursach3/venv/bin/python /home/gromov/cursach3/system_api.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=system-api
+Environment="PATH=/home/gromov/cursach3/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin/:/usr/bin/:/sbin/:/bin"
+Environment="VIRTUAL_ENV=/home/gromov/cursach3/venv"
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
