@@ -11,13 +11,13 @@ class Database:
         os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
 
         self._initialize_db()
-    
+    # подключение к SQlite
     def _get_connection(self) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         return conn, cursor
-    
+    # инициализация бд
     def _initialize_db(self):
         try:
             conn, cursor = self._get_connection()
@@ -40,7 +40,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка создания базы данных: {str(e)}")
             raise
-    
+    # получения списка всех модулей
     def get_modules(self) -> List[Dict[str, Any]]:
         try:
             conn, cursor = self._get_connection()
@@ -54,7 +54,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при получении модулей: {str(e)}")
             return []
-    
+    # получение модуля по ID
     def get_module(self, guid: str) -> Optional[Dict[str, Any]]:
         try:
             conn, cursor = self._get_connection()
@@ -70,7 +70,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при получении модуля: {guid}: {str(e)}")
             return None
-    
+    # добавить новый модуль
     def add_module(self, module: Dict[str, Any]) -> bool:
         try:
             conn, cursor = self._get_connection()
@@ -97,7 +97,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при добавлении модуля: {str(e)}")
             return False
-    
+    # обновить параметры модуля
     def update_module(self, guid: str, update_data: Dict[str, Any]) -> bool:
         try:
             conn, cursor = self._get_connection()
@@ -135,7 +135,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при обновлении модуля {guid}: {str(e)}")
             return False
-    
+    # обновление статуса сервиса для модуля
     def update_module_status(self, guid: str, status: str) -> bool:
         try:
             conn, cursor = self._get_connection()
@@ -163,7 +163,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при обновлении статуса модуля {guid}: {str(e)}")
             return False
-    
+    # Обновление всех статусов модулей
     def update_modules_status(self, status_updates_modules: List[Dict[str, Any]]) -> Tuple[bool, int, List[str]]:
         try:
             conn, cursor = self._get_connection()
@@ -200,7 +200,7 @@ class Database:
         except Exception as e:
             self.logger.error(f"Ошибка при обновлении статусов модулей: {str(e)}")
             return False, 0, []
-    
+    # Удалить модуль
     def delete_module(self, guid: str) -> bool:
         try:
             conn, cursor = self._get_connection()
