@@ -32,7 +32,7 @@ class ModuleManager:
 
         self.update_modules_list()
         self.load_existing_services()
-    
+    # логирование
     def setup_logging(self):
         self.logger = logging.getLogger("ModuleManager")
         self.logger.setLevel(logging.DEBUG)
@@ -49,7 +49,7 @@ class ModuleManager:
 
         self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
-    
+    # чтение конфига
     def load_config(self, config_path):
         try:
             with open(config_path, 'r') as config_file:
@@ -58,7 +58,7 @@ class ModuleManager:
         except Exception as e:
             self.logger.error(f"Ошибка загрузки файла конфига: {str(e)}")
             sys.exit(1)
-    
+    # подключение к MQTT
     def setup_mqtt(self):
         try:
             mqtt_config = self.config.get("mqtt")
@@ -97,7 +97,7 @@ class ModuleManager:
             self.logger.error(f"Ошибка при подключении к MQTT брокеру: {str(e)}")
             self.logger.error(traceback.format_exc())
             sys.exit(1)
-    
+    # после подключения подписка на команды
     def on_mqtt_connect(self, client, userdata, flags, rc):
         if rc == 0:
             command_topics = [
@@ -116,7 +116,7 @@ class ModuleManager:
         else:
             self.logger.error(f"Ошибка при подключении к MQTT брокеру: {rc}")
             self.logger.error(traceback.format_exc())
-
+    # чтение сообщения
     def on_mqtt_message(self, client, userdata, msg):
         try:
             payload = json.loads(msg.payload.decode('utf-8'))
@@ -145,13 +145,13 @@ class ModuleManager:
         except Exception as e:
             self.logger.error(f"Ошибка при обработке сообщения: {str(e)}")
             self.logger.error(traceback.format_exc())
-    
+    # отключение от MQTT
     def on_mqtt_disconnect(self, client, userdata, rc):
         if rc != 0:
             self.logger.warning("Внеплановое отключение")
         else:
             self.logger.info("Отключение MQTT брокера")
-    
+    # загрузка существующих серисных файлов для модулей
     def load_existing_services(self):
         try:
             if not self.modules:
@@ -230,7 +230,7 @@ class ModuleManager:
         except Exception as e:
             self.logger.error(f"Ошибка при загрузке существующих сервисов: {str(e)}")
             self.logger.error(traceback.format_exc())
-
+    # выбор команды (запуск\остановка\перезапуск) в зависимости от отправки
     def run_command_for_service(self, data):
         try:
             module_guid = data.get("config_id")
@@ -265,13 +265,13 @@ class ModuleManager:
         except Exception as e:
             self.logger.error(f"Ошибка при выполнении команды: {str(e)}")
             self.logger.error(traceback.format_exc())
-    
+    # получить модуль по ID
     def get_module_by_guid(self, guid):
         for module in self.modules:
             if module.get("guid") == guid:
                 return module
         return None
-    
+    # перезапуск всех сервисов ПМ
     def restart_all_services(self):
         self.logger.info("Перезапуск сервисов")
         
@@ -286,7 +286,7 @@ class ModuleManager:
                 self.logger.error(f"Ошибка при перезапуске модуля {module.get('name')}: {str(e)}")
         
         self.logger.info("Все сервисы перезапущены")
-    
+    # обновление списка модулей
     def update_modules_list(self):
         try:
             base_url = self.config["systemapi"]["base_url"]
@@ -303,7 +303,7 @@ class ModuleManager:
                 self.logger.error(f"Ошибка при получении модулей: {response.status_code}, Response: {response.text}")
         except Exception as e:
             self.logger.error(f"Ошибкуа при обработки модулей: {str(e)}")
-    
+    # создать скрипт заглушкку и .service файл и выдать права доступа, после получения команды для создания
     def create_service(self, data):
         try:
             module_guid = data.get("config_id")
@@ -410,7 +410,7 @@ while True:
             self.logger.error(f"FОшибка при создании модуля: {str(e)}")
             self.logger.error(traceback.format_exc())
 
-    
+    # создание .service файла со своими параметрами
     def _create_systemd_service_file(self, service_name, module_name, module_path, startup_script):
         venv_path = os.path.expanduser("~/venv")
         python_path = os.path.join(venv_path, "bin", "python") if os.path.exists(venv_path) else "/usr/bin/python3"
@@ -435,7 +435,7 @@ Environment="PYTHONUNBUFFERED=1"
 WantedBy=multi-user.target
 """
         return service_content
-    
+    # удалить .service файл
     def delete_service(self, data):
         try:
             module_guid = data.get("config_id")
@@ -492,7 +492,7 @@ WantedBy=multi-user.target
             self.logger.error(f"Ошибка удаления сервиса {str(e)}")
             self.logger.error(traceback.format_exc())
 
-    
+    # запустить .service файл
     def start_service(self, payload):
         try:
             module_guid = payload.get("config_id")
@@ -538,7 +538,7 @@ WantedBy=multi-user.target
                 self.logger.error(f"Ошибка при запуске сервиса {str(e)}")
         except Exception as e:
             self.logger.error(f"Ошибка при запуске сервиса: {str(e)}")
-    
+    # остановить .service файл
     def stop_service(self, payload):
         try:
             module_guid = payload.get("config_id")
@@ -594,7 +594,7 @@ WantedBy=multi-user.target
             self.logger.error(f"Ошибка остановки сервиса: {str(e)}")
             self.logger.error(traceback.format_exc())
 
-    
+    # перезапуск всех .service файлов
     def restart_service(self, payload):
         try:
             module_guid = payload.get("config_id")
@@ -638,7 +638,7 @@ WantedBy=multi-user.target
             self.logger.error(f"Ошибка перезапуска сервиса: {str(e)}")
             self.logger.error(traceback.format_exc())
 
-    
+    # создание безапасного имени файла для .service
     def _create_safe_filename(self, name):
         safe_name = ""
         for char in name:
@@ -647,7 +647,7 @@ WantedBy=multi-user.target
             else:
                 safe_name += '_'
         return safe_name
-    
+    # обновление статуса ПМ
     def _update_module_status(self, module_guid, status):
         try:
             base_url = self.config["systemapi"]["base_url"]
@@ -669,7 +669,7 @@ WantedBy=multi-user.target
         except Exception as e:
             self.logger.error(f"Ошибка при обновлении статуса: {str(e)}")
             self.logger.error(traceback.format_exc())
-    
+    # мониторинг и логирование статусов ПМ
     def monitor_services(self):
         while self.is_running:
             try:
@@ -746,7 +746,7 @@ WantedBy=multi-user.target
             except Exception as e:
                 self.logger.error(f"Ошибка при мониторинге сервисов{str(e)}")
                 self.logger.error(traceback.format_exc())
-    
+    # отправка письма на почту в случае сбоя
     def send_alert_email(self, module_name, service_name):
         try:
             if not self.config.get("alerts", {}).get("email"):
@@ -815,7 +815,7 @@ Recent logs:
         except Exception as e:
             self.logger.error(f"Ошибка при отправке сообщения: {str(e)}")
             self.logger.error(traceback.format_exc())
-  
+    # запуск модуля
     def start(self):
         monitor_thread = threading.Thread(target=self.monitor_services)
         monitor_thread.daemon = True
