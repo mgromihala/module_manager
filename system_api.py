@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("SystemAPI")
-
+# чтение конфига
 def load_config():
     try:
         with open(CONFIG_FILE, 'r') as f:
@@ -60,25 +60,25 @@ class StatusResponse(BaseModel):
 
 def get_db():
     return db
-
+# главная страница
 @app.get("/")
 async def home(request: Request, db: Database = Depends(get_db)):
     modules = db.get_modules()
     return templates.TemplateResponse("dashboard.html", {"request": request, "modules": modules})
-
+# список модулей
 @app.get("/api/modules", response_model=List[Module])
 async def get_modules(db: Database = Depends(get_db)):
     modules = db.get_modules()
     logger.info(f"Получено {len(modules)} модулей")
     return modules
-
+# получить модуль по ID 
 @app.get("/api/modules/{guid}", response_model=Module)
 async def get_module(guid: str, db: Database = Depends(get_db)):
     module = db.get_module(guid)
     if module:
         return module
     raise HTTPException(status_code=404, detail="Не найден модуль")
-
+# добавить новый модуль
 @app.post("/api/modules", response_model=Module)
 async def add_module(module: ModuleCreate, db: Database = Depends(get_db)):
     existing_module = db.get_module(module.guid)
@@ -91,7 +91,7 @@ async def add_module(module: ModuleCreate, db: Database = Depends(get_db)):
         return module_dict
     else:
         raise HTTPException(status_code=500, detail="Ошибка при добавлении модуля")
-
+# обновить параменты модуля
 @app.put("/api/modules/{guid}", response_model=Module)
 async def update_module(guid: str, module_update: dict, db: Database = Depends(get_db)):
     existing_module = db.get_module(guid)
@@ -104,7 +104,7 @@ async def update_module(guid: str, module_update: dict, db: Database = Depends(g
         return updated_module
     else:
         raise HTTPException(status_code=500, detail="Ошибка при обновлении модуля")
-
+# обновить статус модуля
 @app.put("/api/modules/{guid}/status", response_model=dict)
 async def update_module_status(guid: str, status_update: ModuleStatus, db: Database = Depends(get_db)):
     status = status_update.status
@@ -118,7 +118,7 @@ async def update_module_status(guid: str, status_update: ModuleStatus, db: Datab
         return {"success": True}
     else:
         raise HTTPException(status_code=500, detail="Ошибка при обновлении статуса")
-
+# обновить все статусы модулей
 @app.put("/api/modules/statuses", response_model=StatusResponse)
 async def update_all_statuses(status_updates: List[Dict[str, Any]], db: Database = Depends(get_db)):
     if not status_updates:
@@ -132,7 +132,7 @@ async def update_all_statuses(status_updates: List[Dict[str, Any]], db: Database
         return {"success": True, "updated_count": updated_count, "updated_modules": updated_modules}
     else:
         raise HTTPException(status_code=500, detail="Ошибка при обновлении статусов")
-
+# удлаить модуль
 @app.delete("/api/modules/{guid}", response_model=dict)
 async def delete_module(guid: str, db: Database = Depends(get_db)):
     existing_module = db.get_module(guid)
